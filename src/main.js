@@ -3,8 +3,10 @@ import firebase from 'firebase/app';
 import 'firebase/database';
 import 'firebase/storage';
 import './plugins/vuetify'
-import App from './App.vue'
+
+import App from './App';
 import store from './store'
+import router from './router'
 
 Vue.config.productionTip = false
 
@@ -21,5 +23,6 @@ firebase.initializeApp(config);
 
 new Vue({
   store,
-  render: h => h(App)
+  router,
+  render: h => h(App),
 }).$mount('#app')

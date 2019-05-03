@@ -35,14 +35,14 @@
     </v-layout>
 
     <v-alert
-      :value="isDeleteState"
-			@input="setDeleteState(false)"
-      dismissible
-      type="error"
-			transition="fade-transition"
-			class="alert"
+    :value="isDeleteState"
+    @input="setDeleteState(false)"
+    dismissible
+    type="error"
+    transition="fade-transition"
+    class="alert"
     >
-			{{ this.nameModelDeleted }} was successfully deleted!
+      {{ this.nameModelDeleted }} was successfully deleted!
     </v-alert>
 
     <v-dialog
@@ -76,7 +76,6 @@
 
 <script>
 import { mapGetters, mapMutations, mapActions } from 'vuex';
-import firebase from 'firebase/app';
 
 export default {
   data() {
