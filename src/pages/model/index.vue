@@ -16,7 +16,10 @@ export default {
     const code = this.$route.query.code;
 
     if (!code) return;
-    const model = await firebase.database().ref(`models/${code}`).once("value");
+    const model = await firebase
+      .database()
+      .ref(`models/${code}`)
+      .once("value");
     const url = model.val().url;
 
     if (!url) return;
@@ -32,7 +35,5 @@ export default {
     this.$refs.container.append(linkEl);
     linkEl.click();
   }
-}
+};
 </script>
-
-<style scoped></style>

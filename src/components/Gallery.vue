@@ -23,7 +23,7 @@
             </a>
             <h4 class="subheading">{{ model.name }}</h4>
             <v-btn
-              @click="openDeleteModel(model.key)"
+              @click="openDeleteModal(model.key)"
               fab flat 
               color="error"
             >
@@ -35,12 +35,12 @@
     </v-layout>
 
     <v-alert
-    :value="isDeleteState"
-    @input="setDeleteState(false)"
-    dismissible
-    type="error"
-    transition="fade-transition"
-    class="alert"
+      :value="isDeleteState"
+      @input="setDeleteState(false)"
+      dismissible
+      type="error"
+      transition="fade-transition"
+      class="alert"
     >
       {{ this.nameModelDeleted }} was successfully deleted!
     </v-alert>
@@ -54,7 +54,7 @@
 
         <v-card-actions>
           <v-btn
-            @click="deleteModel(deleteKey); closeDeleteModel();"
+            @click="deleteModel(deleteKey); closeDeleteModal();"
             color="success"
           >
             <v-icon>check</v-icon>
@@ -63,7 +63,7 @@
           <v-spacer></v-spacer>
 
           <v-btn
-            @click="closeDeleteModel()"
+            @click="closeDeleteModal()"
             color="error"
           >
             <v-icon>close</v-icon>
@@ -97,13 +97,13 @@ export default {
   methods: {
     ...mapMutations(['setDeleteState', 'setNameDeletedModel']),
     ...mapActions(['fetchModels', 'deleteModel']),
-    openDeleteModel(key) {
+    openDeleteModal(key) {
       this.dialog = true;
       this.deleteKey = key;
       this.setDeleteState(false);
       this.setNameDeletedModel(this.models[key].name);
     },
-    closeDeleteModel() {
+    closeDeleteModal() {
       this.dialog = false;
     }
   }

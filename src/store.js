@@ -1,17 +1,17 @@
-import Vue from 'vue'
-import firebase from 'firebase/app';
-import Vuex from 'vuex'
+import Vue from "vue";
+import firebase from "firebase/app";
+import Vuex from "vuex";
 
-Vue.use(Vuex)
+Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
     models: {},
-    nameNewModel: '',
+    nameNewModel: "",
     progressUpload: 0,
     isUploading: false,
     isUploadEnd: false,
-    nameDeletedModel: '',
+    nameDeletedModel: "",
     isDeleteState: false
   },
   getters: {
@@ -21,7 +21,7 @@ export default new Vuex.Store({
     getUploadEnd: state => state.isUploadEnd,
     getNameNewModel: state => state.nameNewModel,
     getNameDeletedModel: state => state.nameDeletedModel,
-    getDeleteState: state => state.isDeleteState,
+    getDeleteState: state => state.isDeleteState
   },
   mutations: {
     fetchModels(state, models) {
@@ -54,45 +54,72 @@ export default new Vuex.Store({
   },
   actions: {
     async fetchModels({ commit }) {
-      const models = await firebase.database().ref('models').once('value');
-      
-      commit('fetchModels', models.val());
+      const models = await firebase
+        .database()
+        .ref("models")
+        .once("value");
+
+      commit("fetchModels", models.val());
     },
     async uploadModel({ commit }, file) {
-      commit('setUploadEnd', false);
-      commit('setUploading', true);
-      const name = file.name.slice(0, file.name.lastIndexOf('.usdz'));
-      const dataDb = await firebase.database().ref('models').push({ name });
+      commit("setUploadEnd", false);
+      commit("setUploading", true);
+      const name = file.name.slice(0, file.name.lastIndexOf(".usdz"));
+      const dataDb = await firebase
+        .database()
+        .ref("models")
+        .push({ name });
 
       const key = dataDb.key;
-      const ext = file.name.slice(file.name.lastIndexOf('.'));
-      const uploadTask = firebase.storage().ref(`models/${key}${ext}`).put(file);
-      
-      uploadTask.on('state_changed', sp => {
-        commit('setProgressUpload', Math.floor(sp.bytesTransferred / sp.totalBytes * 100));
-      },
-      null,
-      async () => {
-        const url = await uploadTask.snapshot.ref.getDownloadURL();
+      const ext = file.name.slice(file.name.lastIndexOf("."));
+      const uploadTask = firebase
+        .storage()
+        .ref(`models/${key}${ext}`)
+        .put(file);
 
-        const model = { name, key, url };
-        await firebase.database().ref('models').child(key).update({ url, key });
-        commit('setUploadEnd', true);
-        commit('setDeleteState', false);
+      uploadTask.on(
+        "state_changed",
+        sp => {
+          commit(
+            "setProgressUpload",
+            Math.floor((sp.bytesTransferred / sp.totalBytes) * 100)
+          );
+        },
+        null,
+        async () => {
+          const url = await uploadTask.snapshot.ref.getDownloadURL();
 
-        commit('setUploading', false);
-        commit('setProgressUpload', 0);
-        
-        commit('uploadModel', model);
-        commit('setNameNewModel', name);
-      });
+          const model = { name, key, url };
+          await firebase
+            .database()
+            .ref("models")
+            .child(key)
+            .update({ url, key });
+          commit("setUploadEnd", true);
+          commit("setDeleteState", false);
+
+          commit("setUploading", false);
+          commit("setProgressUpload", 0);
+
+          commit("uploadModel", model);
+          commit("setNameNewModel", name);
+        }
+      );
     },
-    async deleteModel({ state, commit }, key) {
-      await firebase.database().ref().child(`models/${key}`).remove();
-      await firebase.storage().ref().child(`models/${key}.usdz`).delete();
-      commit('deleteModel', key);
-      commit('setUploadEnd', false);
-      commit('setDeleteState', true);
+    async deleteModel({ commit }, key) {
+      await firebase
+        .database()
+        .ref()
+        .child(`models/${key}`)
+        .remove();
+      await firebase
+        .storage()
+        .ref()
+        .child(`models/${key}.usdz`)
+        .delete();
+      commit("deleteModel", key);
+      commit("setUploadEnd", false);
+      commit("setDeleteState", true);
     }
   }
-})
+});

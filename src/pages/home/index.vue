@@ -6,14 +6,14 @@
 </template>
 
 <script>
-import UploadModel from '@/components/UploadModel';
-import Gallery from '@/components/Gallery';
+import UploadModel from "@/components/UploadModel";
+import Gallery from "@/components/Gallery";
 
 export default {
-  name: 'Home',
+  name: "Home",
   components: {
     UploadModel,
     Gallery
   }
-}
+};
 </script>
