@@ -1,12 +1,24 @@
-var express = require('express');
-var path = require('path');
-var serveStatic = require('serve-static');
+const express = require("express");
+const serveStatic = require("serve-static");
+const secure = require('express-force-https');
+const path = require("path");
 
-app = express();
-app.use(serveStatic(__dirname + "/dist"));
+// create the express app
+const app = express();
 
-var port = process.env.PORT || 5000;
+// create middleware to handle the serving the app
+app.use("/", serveStatic(path.join(__dirname, "/dist")));
 
+app.use(secure);
+
+// Catch all routes and redirect to the index file
+app.get("*", function(req, res) {
+  res.sendFile(__dirname + "/dist/index.html");
+});
+
+// Create default port to serve the app on
+const port = process.env.PORT || 5000;
 app.listen(port);
 
-console.log('server started '+ port);
+// Log to feedback that this is actually running
+console.log("Server started on port " + port);

@@ -2,8 +2,7 @@ import Vue from "vue";
 
 import router from "./router";
 import store from "./store";
-import "./plugins/vuetify";
-import "./plugins/firebase";
+import './plugins';
 
 import App from "./App";
 

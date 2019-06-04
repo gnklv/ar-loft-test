@@ -7,49 +7,30 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     models: {},
-    nameNewModel: "",
-    progressUpload: 0,
-    isUploading: false,
-    isUploadEnd: false,
-    nameDeletedModel: "",
-    isDeleteState: false
-  },
-  getters: {
-    getModels: state => state.models,
-    getProgressUpload: state => state.progressUpload,
-    getUploading: state => state.isUploading,
-    getUploadEnd: state => state.isUploadEnd,
-    getNameNewModel: state => state.nameNewModel,
-    getNameDeletedModel: state => state.nameDeletedModel,
-    getDeleteState: state => state.isDeleteState
+    progressUpload: {
+      file: 0,
+      preview: 0
+    }
   },
   mutations: {
     fetchModels(state, models) {
       state.models = Object.assign({}, { ...models });
     },
     uploadModel(state, model) {
-      Vue.set(state.models, model.key, model);
+      if (!state.models[model.key]) {
+        Vue.set(state.models, model.key, model);
+      } else {
+        state.models[model.key] = {
+          ...state.models[model.key],
+          ...model
+        };
+      }
+    },
+    setProgressUpload(state, { type, payload }) {
+      state.progressUpload[type] = payload;
     },
     deleteModel(state, key) {
       Vue.delete(state.models, key);
-    },
-    setProgressUpload(state, progress) {
-      state.progressUpload = progress;
-    },
-    setUploading(state, uploading) {
-      state.isUploading = uploading;
-    },
-    setUploadEnd(state, uploadEnd) {
-      state.isUploadEnd = uploadEnd;
-    },
-    setNameNewModel(state, name) {
-      state.nameNewModel = name;
-    },
-    setDeleteState(state, deleteState) {
-      state.isDeleteState = deleteState;
-    },
-    setNameDeletedModel(state, name) {
-      state.nameDeletedModel = name;
     }
   },
   actions: {
@@ -61,65 +42,134 @@ export default new Vuex.Store({
 
       commit("fetchModels", models.val());
     },
-    async uploadModel({ commit }, file) {
-      commit("setUploadEnd", false);
-      commit("setUploading", true);
-      const name = file.name.slice(0, file.name.lastIndexOf(".usdz"));
-      const dataDb = await firebase
-        .database()
-        .ref("models")
-        .push({ name });
+    uploadModel({ commit }, { file, name, preview, modelKey }) {
+      return new Promise(async resolve => {
+        let dataDb, key;
+        if (!modelKey) {
+          dataDb = await firebase
+            .database()
+            .ref("models")
+            .push({ name });
 
-      const key = dataDb.key;
-      const ext = file.name.slice(file.name.lastIndexOf("."));
-      const uploadTask = firebase
-        .storage()
-        .ref(`models/${key}${ext}`)
-        .put(file);
+          key = dataDb.key;
 
-      uploadTask.on(
-        "state_changed",
-        sp => {
-          commit(
-            "setProgressUpload",
-            Math.floor((sp.bytesTransferred / sp.totalBytes) * 100)
-          );
-        },
-        null,
-        async () => {
-          const url = await uploadTask.snapshot.ref.getDownloadURL();
-
-          const model = { name, key, url };
           await firebase
             .database()
             .ref("models")
             .child(key)
-            .update({ url, key });
-          commit("setUploadEnd", true);
-          commit("setDeleteState", false);
+            .update({ key });
+        } else {
+          key = modelKey;
 
-          commit("setUploading", false);
-          commit("setProgressUpload", 0);
-
-          commit("uploadModel", model);
-          commit("setNameNewModel", name);
+          await firebase
+            .database()
+            .ref("models")
+            .child(key)
+            .update({ name });
         }
-      );
+
+        let model = { name, key };
+
+        if (file) {
+          const fileExt = file.name.slice(file.name.lastIndexOf("."));
+          const fileUploadTask = firebase
+            .storage()
+            .ref(`models/${key}${fileExt}`)
+            .put(file);
+
+          commit("setProgressUpload", { type: "file", payload: 0 });
+          fileUploadTask.on(
+            "state_changed",
+            sp => {
+              commit("setProgressUpload", {
+                type: "file",
+                payload: Math.floor((sp.bytesTransferred / sp.totalBytes) * 100)
+              });
+            },
+            null,
+            async () => {
+              const url = await fileUploadTask.snapshot.ref.getDownloadURL();
+
+              await firebase
+                .database()
+                .ref("models")
+                .child(key)
+                .update({ url });
+
+              model = { ...model, url };
+
+              complete(preview ? "preview" : "url");
+            }
+          );
+        }
+
+        if (preview) {
+          const previewUploadTask = firebase
+            .storage()
+            .ref(`previews/${key}`)
+            .put(preview);
+
+          commit("setProgressUpload", { type: "preview", payload: 0 });
+          previewUploadTask.on(
+            "state_changed",
+            sp => {
+              commit("setProgressUpload", {
+                type: "preview",
+                payload: Math.floor((sp.bytesTransferred / sp.totalBytes) * 100)
+              });
+            },
+            null,
+            async () => {
+              const preview = await previewUploadTask.snapshot.ref.getDownloadURL();
+
+              await firebase
+                .database()
+                .ref("models")
+                .child(key)
+                .update({ preview });
+
+              model = { ...model, preview };
+
+              complete(file ? "url" : "preview");
+            }
+          );
+        }
+
+        const complete = type => {
+          if (model[type]) {
+            commit("uploadModel", model);
+            commit("setProgressUpload", { type: "preview", payload: 0 });
+            commit("setProgressUpload", { type: "file", payload: 0 });
+            resolve();
+          }
+        };
+
+        if (!file && !preview) {
+          commit("uploadModel", model);
+          resolve();
+        }
+      });
     },
-    async deleteModel({ commit }, key) {
-      await firebase
-        .database()
-        .ref()
-        .child(`models/${key}`)
-        .remove();
-      await firebase
-        .storage()
-        .ref()
-        .child(`models/${key}.usdz`)
-        .delete();
-      commit("deleteModel", key);
-      commit("setUploadEnd", false);
-      commit("setDeleteState", true);
+    deleteModel({ commit }, key) {
+      return new Promise(async resolve => {
+        await firebase
+            .database()
+            .ref()
+            .child(`models/${key}`)
+            .remove();
+        await firebase
+            .storage()
+            .ref()
+            .child(`models/${key}.usdz`)
+            .delete();
+        await firebase
+            .storage()
+            .ref()
+            .child(`previews/${key}`)
+            .delete();
+        commit("deleteModel", key);
+        resolve();
+      });
     }
   }
 });

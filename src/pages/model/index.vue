@@ -1,17 +1,25 @@
 <template>
-  <div ref="container"></div>
+  <div ref="container">
+    <SvgLoader />
+  </div>
 </template>
 
 <script>
 import firebase from "firebase/app";
+import SvgLoader from '@/components/SvgLoader';
 
 export default {
   name: "Model",
-  data: () => ({
-    model: {
-      url: null
+  components: {
+    SvgLoader
+  },
+  data() {
+    return {
+      model: {
+        url: null
+      }
     }
-  }),
+  },
   async mounted() {
     const code = this.$route.query.code;
 
@@ -22,6 +30,7 @@ export default {
       .once("value");
     const url = model.val().url;
 
+    const container = this.$refs.container;
     if (!url) return;
     const imageEl = document.createElement("img");
     imageEl.style.display = "none";
@@ -32,7 +41,8 @@ export default {
     linkEl.setAttribute("href", url);
     linkEl.setAttribute("rel", "ar");
     linkEl.append(imageEl);
-    this.$refs.container.append(linkEl);
+    container.append(linkEl);
+
     linkEl.click();
   }
 };

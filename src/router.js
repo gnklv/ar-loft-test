@@ -2,10 +2,12 @@ import Vue from "vue";
 import Router from "vue-router";
 import Home from "./pages/home";
 import Model from "./pages/model";
+import Admin from "./pages/admin";
 
 Vue.use(Router);
 
 export default new Router({
+  mode: "history",
   routes: [
     {
       path: "/",
@@ -16,6 +18,11 @@ export default new Router({
       path: "/model",
       name: "model",
       component: Model
+    },
+    {
+      path: "/admin",
+      name: "admin",
+      component: Admin
     }
   ]
 });
