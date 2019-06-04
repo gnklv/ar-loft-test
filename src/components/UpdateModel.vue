@@ -122,7 +122,11 @@ export default {
       progressImage: state => state.progressUpload.preview
     }),
     valid() {
-      return !!this.name && (!!this.imageFile || !!this.imageUrl) && (!!this.modelFile || !!this.modelUrl);
+      return (
+        !!this.name &&
+        (!!this.imageFile || !!this.imageUrl) &&
+        (!!this.modelFile || !!this.modelUrl)
+      );
     }
   },
   mounted() {
