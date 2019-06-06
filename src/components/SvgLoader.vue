@@ -25,8 +25,8 @@ export default {
 
 .svg-loader {
   display: block;
-  width: 500px;
-  height: 500px;
+  max-width: 500px;
+  max-height: 500px;
   margin: auto;
   fill: #ecf0f1;
   animation-name: fill;

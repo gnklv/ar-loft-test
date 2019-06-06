@@ -2,7 +2,7 @@ import Vue from "vue";
 import Router from "vue-router";
 import Home from "./pages/home";
 import Model from "./pages/model";
-import Admin from "./pages/admin";
+import Admin from "./pages/PageAdmin";
 
 Vue.use(Router);
 
