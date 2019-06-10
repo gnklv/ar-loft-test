@@ -1,21 +1,17 @@
 import firebase from "firebase/app";
+import { getFileExtension } from "@/services";
 
 export default {
-  fetchItem: ({ state, commit }, { id, resource }) => {
-    return new Promise(resolve => {
-      const dbRef = firebase.database().ref(resource);
+  fetchItem: ({ state, commit }, { id, resource }) =>
+    new Promise(async resolve => {
+      const dbRef = firebase.database().ref();
+      const itemRef = dbRef.child(`${resource}/${id}`);
 
-      dbRef.child(id).once("value", snapshot => {
-        commit("setItem", {
-          resource,
-          id: snapshot.key,
-          item: snapshot.val()
-        });
+      const snapshot = await itemRef.once("value");
+      commit("setItem", { resource, id, item: snapshot.val() });
 
-        resolve(state[resource][id]);
-      });
-    });
-  },
+      resolve(state[resource][id]);
+    }),
 
   fetchItems: ({ dispatch }, { ids, resource }) => {
     ids = Array.isArray(ids) ? ids : Object.keys(ids);
@@ -29,11 +25,32 @@ export default {
 
   deleteItem: ({ commit }, { id, resource }) =>
     new Promise(async resolve => {
-      const dbRef = firebase.database().ref(resource);
+      const dbRef = firebase.database().ref();
+      const itemRef = dbRef.child(`${resource}/${id}`);
 
-      await dbRef.child(id).remove();
+      await itemRef.remove();
       commit("deleteItem", { id, resource });
 
+      resolve();
+    }),
+
+  uploadFile: (context, { file, id, resource }) =>
+    new Promise(async resolve => {
+      const storageRef = firebase.storage().ref();
+      const fileExt = getFileExtension(file.name);
+      const fileRef = storageRef.child(`${resource}/${id}.${fileExt}`);
+
+      const snapshot = await fileRef.put(file);
+      const url = await snapshot.ref.getDownloadURL();
+      resolve({ url, filename: `${id}.${fileExt}` });
+    }),
+
+  deleteFile: (context, { resource, filename }) =>
+    new Promise(async resolve => {
+      const storageRef = firebase.storage().ref();
+      const fileRef = storageRef.child(`${resource}/${filename}`);
+
+      await fileRef.delete();
       resolve();
     })
 };

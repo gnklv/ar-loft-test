@@ -16,11 +16,13 @@
       </v-btn>
     </v-toolbar>
 
-    <v-flex xs12 pa-4>
-      <v-text-field v-model="name" label="Имя категории" />
-    </v-flex>
+    <v-flex xs12 pa-3>
+      <v-text-field
+        v-model="name"
+        label="Название категории"
+        class="mb-2"
+      />
 
-    <v-flex xs12 px-4>
       <v-btn
         class="ma-0"
         color="primary"
@@ -59,8 +61,6 @@ export default {
   methods: {
     ...mapActions("categories", ["createCategory", "updateCategory"]),
     cancel() {
-      this.name = "";
-
       this.$emit("cancel");
     },
     async save() {
@@ -69,7 +69,6 @@ export default {
       const category = await this.persist();
       this.$emit("save", category);
 
-      this.name = "";
       this.loading = false;
     },
     create() {
@@ -81,7 +80,7 @@ export default {
     },
     update() {
       const payload = {
-        id: this.category["key"],
+        id: this.category.key,
         name: this.name
       };
 

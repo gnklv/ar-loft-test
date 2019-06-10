@@ -6,10 +6,10 @@
 
 <script>
 import firebase from "firebase/app";
-import SvgLoader from '@/components/SvgLoader';
+import SvgLoader from "@/components/SvgLoader";
 
 export default {
-  name: "Model",
+  name: "PageModel",
   components: {
     SvgLoader
   },
@@ -18,7 +18,7 @@ export default {
       model: {
         url: null
       }
-    }
+    };
   },
   async mounted() {
     const code = this.$route.query.code;
@@ -28,7 +28,7 @@ export default {
       .database()
       .ref(`models/${code}`)
       .once("value");
-    const url = model.val().url;
+    const url = model.val().usdz.url;
 
     const container = this.$refs.container;
     if (!url) return;

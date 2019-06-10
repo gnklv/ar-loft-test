@@ -28,12 +28,19 @@ export default {
   },
 
   async created() {
-    await this.fetchAllCategories();
+    const categories = await this.fetchAllCategories();
+    await Promise.all(categories.map(category => {
+      if (category.models) {
+        return this.fetchModels({ids: Object.keys(category.models)})
+      }
+      return false;
+    }));
     this.asyncDataStatus_fetched();
   },
 
   methods: {
-    ...mapActions('categories', ['fetchAllCategories'])
+    ...mapActions('categories', ['fetchAllCategories']),
+    ...mapActions('models', ['fetchModels'])
   }
 };
 </script>

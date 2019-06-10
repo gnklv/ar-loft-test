@@ -1,51 +1,61 @@
 import firebase from "firebase/app";
+import {
+  makeAppendChildToParentMutation,
+  makeDeleteChildFromParentMutation
+} from "../assetHelpers";
 
 export default {
   namespaced: true,
 
   state: {},
 
+  getters: {},
+
+  mutations: {
+    appendModelToCategory: makeAppendChildToParentMutation({ child: "models" }),
+    deleteModelFromCategory: makeDeleteChildFromParentMutation({
+      child: "models"
+    })
+  },
+
   actions: {
     fetchCategory: ({ dispatch }, { id }) =>
       dispatch("fetchItem", { resource: "categories", id }, { root: true }),
 
-    fetchCategories: ({ dispatch }, { ids }) =>
-      dispatch("fetchItems", { resource: "categories", ids }, { root: true }),
-
     fetchAllCategories: ({ state, commit }) =>
-      new Promise(resolve => {
-        const dbRefCategories = firebase.database().ref("categories");
-
-        dbRefCategories.once("value", snapshot => {
-          const categoriesObject = snapshot.val();
-
-          Object.keys(categoriesObject).forEach(categoryId => {
-            const category = categoriesObject[categoryId];
-            commit(
-              "setItem",
-              { resource: "categories", id: categoryId, item: category },
-              { root: true }
-            );
-          });
-
-          resolve(Object.values(state));
-        });
-      }),
-
-    createCategory: ({ state, commit }, category) =>
       new Promise(async resolve => {
         const dbRef = firebase.database().ref();
-        const dbRefCategories = firebase.database().ref("categories");
-        const categoryId = dbRefCategories.push().key;
+        const categoriesRef = dbRef.child("categories");
+
+        const snapshot = await categoriesRef.once("value");
+        const categoriesObject = snapshot.val();
+
+        Object.keys(categoriesObject).forEach(categoryId => {
+          const category = categoriesObject[categoryId];
+          commit(
+            "setItem",
+            { resource: "categories", id: categoryId, item: category },
+            { root: true }
+          );
+        });
+
+        resolve(Object.values(state));
+      }),
+
+    createCategory: ({ state, commit }, { name }) =>
+      new Promise(async resolve => {
+        const dbRef = firebase.database().ref();
+        const categoriesRef = dbRef.child("categories");
+        const categoryId = categoriesRef.push().key;
 
         const updates = {};
-        updates[`categories/${categoryId}`] = category;
+        updates[`categories/${categoryId}`] = { name };
 
         await dbRef.update(updates);
 
         commit(
           "setItem",
-          { resource: "categories", id: categoryId, item: category },
+          { resource: "categories", id: categoryId, item: { name } },
           { root: true }
         );
 
@@ -54,12 +64,13 @@ export default {
 
     updateCategory: ({ state, commit }, { id, name }) =>
       new Promise(async resolve => {
-        const dbRefCategories = firebase.database().ref("categories");
+        const dbRef = firebase.database().ref();
         const category = state[id];
 
-        const updates = { name };
+        const updates = {};
+        updates[`categories/${id}`] = { name };
 
-        await dbRefCategories.child(id).update(updates);
+        await dbRef.update(updates);
 
         commit(
           "setItem",
@@ -67,7 +78,7 @@ export default {
           { root: true }
         );
 
-        resolve(category);
+        resolve(state[id]);
       }),
 
     deleteCategory: ({ dispatch }, { id }) =>

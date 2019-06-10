@@ -1,6 +1,6 @@
 <template>
-  <v-flex xs12>
-    <v-expansion-panel>
+  <v-flex>
+    <v-expansion-panel expand class="mb-4">
       <CategoryListItem
         v-for="category in categories"
         :key="category.key"
@@ -8,31 +8,32 @@
         @update="updateCategoriesItem"
         @delete="confirmCategoryDelete"
       />
-
-      <v-expansion-panel-content disabled>
-        <template slot="header">
-          <v-layout row align-center>
-            <v-icon class="mr-3">folder</v-icon>
-            <h2 class="headline">Добавить новую категорию</h2>
-
-            <v-spacer></v-spacer>
-
-            <v-btn class="ma-0" icon @click.stop="createCategoriesItem" style="pointer-events: all">
-              <v-icon color="green">add</v-icon>
-            </v-btn>
-          </v-layout>
-        </template>
-      </v-expansion-panel-content>
     </v-expansion-panel>
 
-    <v-dialog :value="editing" fullscreen transition="dialog-bottom-transition">
+    <v-layout row align-center justify-end class="px-4">
+      <v-tooltip top>
+        <template slot="activator">
+          <v-btn
+            class="ma-0"
+            color="green"
+            fab dark small
+            @click="createCategoriesItem"
+          >
+            <v-icon>add</v-icon>
+          </v-btn>
+        </template>
+        <span>Добавить категорию</span>
+      </v-tooltip>
+    </v-layout>
+
+    <v-bottom-sheet inset persistent v-model="editing">
       <CategoryEditor
         v-if="editing"
         :category="category"
         @cancel="editing = false"
         @save="editing = false"
       />
-    </v-dialog>
+    </v-bottom-sheet>
 
     <v-dialog :value="confirm" width="300">
       <CategoryDelete
@@ -46,9 +47,9 @@
 </template>
 
 <script>
-import CategoryListItem from '@/components/CategoryListItem';
-import CategoryEditor from '@/components/CategoryEditor';
-import CategoryDelete from '@/components/CategoryDelete';
+import CategoryListItem from "@/components/CategoryListItem";
+import CategoryEditor from "@/components/CategoryEditor";
+import CategoryDelete from "@/components/CategoryDelete";
 
 export default {
   name: "CategoriesList",
@@ -68,7 +69,7 @@ export default {
       editing: false,
       category: null,
       confirm: false
-    }
+    };
   },
   methods: {
     createCategoriesItem() {

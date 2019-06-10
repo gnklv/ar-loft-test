@@ -1,8 +1,8 @@
 import Vue from "vue";
 import Router from "vue-router";
-import Home from "./pages/home";
-import Model from "./pages/model";
-import Admin from "./pages/PageAdmin";
+import PageHome from "@/pages/PageHome";
+import PageModel from "@/pages/PageModel";
+import PageAdmin from "@/pages/PageAdmin";
 
 Vue.use(Router);
 
@@ -12,17 +12,17 @@ export default new Router({
     {
       path: "/",
       name: "home",
-      component: Home
+      component: PageHome
     },
     {
       path: "/model",
       name: "model",
-      component: Model
+      component: PageModel
     },
     {
       path: "/admin",
       name: "admin",
-      component: Admin
+      component: PageAdmin
     }
   ]
 });

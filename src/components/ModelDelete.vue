@@ -1,9 +1,7 @@
 <template>
   <v-card>
     <v-toolbar dark color="red">
-      <v-toolbar-title>
-        Удалить категорию {{ category.name }}?
-      </v-toolbar-title>
+      <v-toolbar-title> Удалить модель {{ model.name }}? </v-toolbar-title>
     </v-toolbar>
 
     <v-card-actions>
@@ -24,9 +22,9 @@
 import { mapActions } from "vuex";
 
 export default {
-  name: "CategoryDelete",
+  name: "ModelDelete",
   props: {
-    category: {
+    model: {
       type: Object,
       required: true
     }
@@ -37,18 +35,19 @@ export default {
     };
   },
   methods: {
-    ...mapActions("categories", ["deleteCategory"]),
+    ...mapActions("models", ["deleteModel"]),
     async confirm() {
       this.loading = true;
 
-      const {
-        category: { key }
-      } = this;
-      const payload = { id: key };
-
-      await this.deleteCategory(payload);
-
+      const payload = {
+        id: this.model.key,
+        categoryId: this.model.categoryId,
+        preview: this.model.preview,
+        usdz: this.model.usdz
+      };
+      await this.deleteModel(payload);
       this.$emit("confirm");
+
       this.loading = false;
     },
     cancel() {
