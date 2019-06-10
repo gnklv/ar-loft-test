@@ -13,7 +13,7 @@
       <v-icon v-else>photo</v-icon>
     </v-avatar>
 
-    <h3 class="subheading">{{ model.name}}</h3>
+    <h3 class="subheading ellipsis">{{ model.name}}</h3>
 
     <v-spacer></v-spacer>
 

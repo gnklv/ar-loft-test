@@ -3,7 +3,7 @@
     <template slot="header">
       <v-layout row align-center>
         <v-icon class="mr-2">folder</v-icon>
-        <h2 class="title font-weight-regular">{{ category.name }}</h2>
+        <h2 class="title font-weight-regular ellipsis">{{ category.name }}</h2>
 
         <v-spacer></v-spacer>
 
