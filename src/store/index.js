@@ -7,6 +7,7 @@ import actions from "./actions";
 
 import models from "./modules/models";
 import categories from "./modules/categories";
+import device from "./modules/device";
 
 Vue.use(Vuex);
 
@@ -17,6 +18,7 @@ export default new Vuex.Store({
   actions,
   modules: {
     models,
-    categories
+    categories,
+    device
   }
 });

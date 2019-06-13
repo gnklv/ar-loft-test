@@ -61,15 +61,8 @@ export default {
     onFileChange($event) {
       const files = $event.target.files || $event.dataTransfer.files;
       const file = files[0];
-      if (files) {
-        if (files.length > 0) {
-          this.filename = [...files].map(file => file.name).join(", ");
-        } else {
-          this.filename = null;
-        }
-      } else {
-        this.filename = $event.target.value.split("\\").pop();
-      }
+
+      this.filename = $event.target.value.split("\\").pop();
       this.$emit("input", this.filename);
       this.$emit("file", file);
     }

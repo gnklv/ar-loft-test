@@ -14,7 +14,9 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex';
 import SvgLoader from '@/components/SvgLoader';
+import { detectIsIOS } from "@/services";
 
 export default {
   name: "App",
@@ -27,12 +29,15 @@ export default {
     }
   },
   created() {
+    this.setIsIOS(detectIsIOS());
+
     this.$router.beforeEach((to, from, next) => {
       this.showPage = false;
       next();
     })
   },
   methods: {
+    ...mapActions('device', ['setIsIOS']),
     pageReady() {
       this.showPage = true;
     }
