@@ -23,6 +23,8 @@
 </template>
 
 <script>
+import Compressor from "compressorjs";
+
 export default {
   name: "Uploader",
   props: {
@@ -60,11 +62,29 @@ export default {
     },
     onFileChange($event) {
       const files = $event.target.files || $event.dataTransfer.files;
-      const file = files[0];
+      let file = files[0];
 
       this.filename = $event.target.value.split("\\").pop();
-      this.$emit("input", this.filename);
+
+      if (file.type.includes("image")) {
+        new Compressor(file, {
+          quality: 0.6,
+          width: 960,
+          convertSize: Infinity,
+          success: result => {
+            this.emittingEvents(result);
+          },
+          error: error => {
+            console.log(error.message);
+          }
+        });
+      } else {
+        this.emittingEvents(file);
+      }
+    },
+    emittingEvents(file) {
       this.$emit("file", file);
+      this.$emit("input", this.filename);
     }
   }
 };
