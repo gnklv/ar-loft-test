@@ -45,6 +45,7 @@
 <script>
 import { mapState } from "vuex";
 import QRCode from "vue-qrcode-component";
+import { sortByNumbersAndLetters } from "../services";
 
 export default {
   name: "ModelsGallery",
@@ -61,9 +62,10 @@ export default {
       isIOS: state => state.device.isIOS
     }),
     filteredModels() {
-      return Object.values(this.models).filter(
+      const models = Object.values(this.models).filter(
         model => model.categoryId === this.category.key
       );
+      return sortByNumbersAndLetters({ array: models, sortedValue: 'name' });
     },
     qrCodeURI() {
       return `${process.env.VUE_APP_QR_CODE_URI}/model?code=`;

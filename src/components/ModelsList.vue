@@ -46,6 +46,7 @@ import { mapState } from "vuex";
 import ModelListItem from "@/components/ModelListItem";
 import ModelEditor from "@/components/ModelEditor";
 import ModelDelete from "@/components/ModelDelete";
+import { sortByNumbersAndLetters } from "../services";
 
 export default {
   name: "ModelsList",
@@ -72,9 +73,10 @@ export default {
       models: state => state.models
     }),
     filteredModels() {
-      return Object.values(this.models).filter(
+      const models = Object.values(this.models).filter(
         model => model.categoryId === this.categoryId
       );
+      return sortByNumbersAndLetters({ array: models, sortedValue: 'name' });
     }
   },
   methods: {
