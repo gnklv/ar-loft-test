@@ -20,19 +20,25 @@ export default {
         const dbRef = firebase.database().ref();
         const modelsRef = dbRef.child("models");
         const modelId = modelsRef.push().key;
+        let model = {};
 
-        const usdz = await dispatch(
-          "uploadFile",
-          { file: usdzFile, id: modelId, resource: "models" },
-          { root: true }
-        );
-        const preview = await dispatch(
-          "uploadFile",
-          { file: previewFile, id: modelId, resource: "previews" },
-          { root: true }
-        );
+        if (usdzFile) {
+          model.usdz = await dispatch(
+            "uploadFile",
+            { file: usdzFile, id: modelId, resource: "models" },
+            { root: true }
+          );
+        }
 
-        const model = { name, categoryId, usdz, preview };
+        if (previewFile) {
+          model.preview = await dispatch(
+            "uploadFile",
+            { file: previewFile, id: modelId, resource: "previews" },
+            { root: true }
+          );
+        }
+
+        model = { ...model, name, categoryId };
         const updates = {};
         updates[`models/${modelId}`] = model;
         updates[`categories/${categoryId}/models/${modelId}`] = modelId;
@@ -59,24 +65,27 @@ export default {
       new Promise(async resolve => {
         const dbRef = firebase.database().ref();
         const model = state[id];
+        let newModel = {};
 
-        let usdz;
-        if (usdzFile)
-          usdz = await dispatch(
+        if (usdzFile) {
+          newModel.usdz = await dispatch(
             "uploadFile",
             { file: usdzFile, id, resource: "models" },
             { root: true }
           );
-        else usdz = model.usdz;
+        } else if (model.usdz) {
+          newModel.usdz = model.usdz;
+        }
 
-        let preview;
-        if (previewFile)
-          preview = await dispatch(
+        if (previewFile) {
+          newModel.preview = await dispatch(
             "uploadFile",
             { file: previewFile, id, resource: "previews" },
             { root: true }
           );
-        else preview = model.preview;
+        } else if (model.preview) {
+          newModel.preview = model.preview;
+        }
 
         const updates = {};
         if (categoryId) {
@@ -86,12 +95,9 @@ export default {
           updates[`categories/${categoryId}/models/${id}`] = id;
         }
 
-        updates[`models/${id}`] = {
-          name: name || model.name,
-          usdz,
-          preview,
-          categoryId: categoryId || model.categoryId
-        };
+        newModel.name = name || model.name;
+        newModel.categoryId = categoryId || model.categoryId;
+        updates[`models/${id}`] = newModel;
 
         await dbRef.update(updates);
 
@@ -109,17 +115,7 @@ export default {
         }
         commit(
           "setItem",
-          {
-            resource: "models",
-            id,
-            item: {
-              ...model,
-              name: name || model.name,
-              usdz,
-              preview,
-              categoryId: categoryId || model.categoryId
-            }
-          },
+          { resource: "models", id, item: newModel },
           { root: true }
         );
 
@@ -132,16 +128,20 @@ export default {
 
         await dbRef.child(`models/${id}`).remove();
         await dbRef.child(`categories/${categoryId}/models/${id}`).remove();
-        await dispatch(
-          "deleteFile",
-          { resource: "models", filename: usdz.filename },
-          { root: true }
-        );
-        await dispatch(
-          "deleteFile",
-          { resource: "previews", filename: preview.filename },
-          { root: true }
-        );
+        if (usdz) {
+          await dispatch(
+            "deleteFile",
+            { resource: "models", filename: usdz.filename },
+            { root: true }
+          );
+        }
+        if (preview) {
+          await dispatch(
+            "deleteFile",
+            { resource: "previews", filename: preview.filename },
+            { root: true }
+          );
+        }
 
         commit("deleteItem", { resource: "models", id }, { root: true });
         commit(
