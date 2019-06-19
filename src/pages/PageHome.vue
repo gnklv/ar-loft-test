@@ -1,6 +1,6 @@
 <template>
   <v-layout column>
-    <CategoriesGallery :categories="Object.values(categories)"/>
+    <CategoriesGallery :categories="Object.values(categories)" :loaded="isLoaded"/>
   </v-layout>
 </template>
 
@@ -15,6 +15,11 @@ export default {
     CategoriesGallery
   },
   mixins: [asyncDataStatus],
+  data() {
+    return {
+      isLoaded: false
+    }
+  },
   computed: {
     ...mapState({
       categories: state => state.categories
@@ -30,16 +35,12 @@ export default {
         return false;
       })
     );
+    this.isLoaded = true;
     this.asyncDataStatus_fetched();
   },
   methods: {
     ...mapActions("categories", ["fetchAllCategories"]),
-    ...mapActions("models", ["fetchModels"]),
-    filteredModels(categoryId) {
-      return Object.values(this.models).filter(
-        model => model.categoryId === categoryId
-      );
-    }
+    ...mapActions("models", ["fetchModels"])
   }
 };
 </script>

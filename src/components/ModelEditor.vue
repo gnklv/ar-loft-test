@@ -14,7 +14,7 @@
     </v-toolbar>
 
     <v-flex xs12 pa-3>
-      <v-text-field v-model="name" label="Название модели" />
+      <v-text-field v-model.trim="name" label="Название модели" />
 
       <v-select
         v-model="category"
@@ -77,7 +77,8 @@ export default {
       category: this.categoryId,
       usdzName: this.model && this.model.usdz ? this.model.usdz.filename : "",
       usdz: null,
-      previewName: this.model && this.model.preview ? this.model.preview.filename : "",
+      previewName:
+        this.model && this.model.preview ? this.model.preview.filename : "",
       preview: null
     };
   },
@@ -95,10 +96,10 @@ export default {
       return this.name && this.usdzName;
     },
     checkUsdzName() {
-      return this.model.usdz ? this.model.usdz.filename : ""
+      return this.model.usdz ? this.model.usdz.filename : "";
     },
     checkPreviewName() {
-      return this.model.preview ? this.model.preview.filename : ""
+      return this.model.preview ? this.model.preview.filename : "";
     }
   },
   methods: {
@@ -127,9 +128,11 @@ export default {
       const model = {
         id: this.model.key,
         name: this.name === this.model.name ? "" : this.name,
-        categoryId: this.category === this.model.categoryId ? "" : this.category,
+        categoryId:
+          this.category === this.model.categoryId ? "" : this.category,
         usdzFile: this.usdzName === this.checkUsdzName ? null : this.usdz,
-        previewFile: this.previewName === this.checkPreviewName ? null : this.preview
+        previewFile:
+          this.previewName === this.checkPreviewName ? null : this.preview
       };
       return this.updateModel(model);
     },

@@ -1,5 +1,5 @@
 <template>
-  <v-tabs show-arrows slider-color="grey">
+  <v-tabs ref="tabs" show-arrows slider-color="grey">
     <v-tab
       v-for="category in categories"
       :key="`tab-${category.key}`"
@@ -12,14 +12,15 @@
       v-for="category in categories"
       :key="`tab-item-${category.key}`"
       :value="`tab-${category.key}`"
+      lazy
     >
-      <ModelsGallery :category="category"/>
+      <ModelsGallery :category="category" />
     </v-tab-item>
   </v-tabs>
 </template>
 
 <script>
-import ModelsGallery from '@/components/ModelsGallery';
+import ModelsGallery from "@/components/ModelsGallery";
 
 export default {
   name: "CategoriesGallery",
@@ -30,7 +31,16 @@ export default {
     categories: {
       type: Array,
       required: true
+    },
+    loaded: {
+      type: Boolean,
+      default: false
     }
   },
+  watch: {
+    loaded(value) {
+      if (value) this.$refs.tabs.onResize();
+    }
+  }
 };
 </script>

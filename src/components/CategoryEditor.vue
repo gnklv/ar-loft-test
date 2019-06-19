@@ -18,7 +18,7 @@
 
     <v-flex xs12 pa-3>
       <v-text-field
-        v-model="name"
+        v-model.trim="name"
         label="Название категории"
         class="mb-2"
       />

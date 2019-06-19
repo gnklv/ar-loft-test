@@ -1,6 +1,6 @@
 <template>
   <v-layout row wrap>
-    <v-flex v-for="model in filteredModels" :key="model.key" xs12 sm6 md3>
+    <v-flex v-for="model in filteredModels" :key="model.key" xs6 sm6 md3>
       <a class="card ma-2" rel="ar" :href="model.usdz.url" @click="onClick">
         <img style="display: none;" src="" alt="" />
         <QRCode v-if="!isIOS" class="qr-code" :text="qrCodeURI + model.key" />
