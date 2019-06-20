@@ -65,26 +65,26 @@ export default {
       new Promise(async resolve => {
         const dbRef = firebase.database().ref();
         const model = state[id];
-        let newModel = {};
+        let updatedModel = {};
 
         if (usdzFile) {
-          newModel.usdz = await dispatch(
+          updatedModel.usdz = await dispatch(
             "uploadFile",
             { file: usdzFile, id, resource: "models" },
             { root: true }
           );
         } else if (model.usdz) {
-          newModel.usdz = model.usdz;
+          updatedModel.usdz = model.usdz;
         }
 
         if (previewFile) {
-          newModel.preview = await dispatch(
+          updatedModel.preview = await dispatch(
             "uploadFile",
             { file: previewFile, id, resource: "previews" },
             { root: true }
           );
         } else if (model.preview) {
-          newModel.preview = model.preview;
+          updatedModel.preview = model.preview;
         }
 
         const updates = {};
@@ -95,9 +95,9 @@ export default {
           updates[`categories/${categoryId}/models/${id}`] = id;
         }
 
-        newModel.name = name || model.name;
-        newModel.categoryId = categoryId || model.categoryId;
-        updates[`models/${id}`] = newModel;
+        updatedModel.name = name || model.name;
+        updatedModel.categoryId = categoryId || model.categoryId;
+        updates[`models/${id}`] = updatedModel;
 
         await dbRef.update(updates);
 
@@ -115,7 +115,7 @@ export default {
         }
         commit(
           "setItem",
-          { resource: "models", id, item: newModel },
+          { resource: "models", id, item: updatedModel },
           { root: true }
         );
 

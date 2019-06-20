@@ -67,14 +67,15 @@ export default {
         const dbRef = firebase.database().ref();
         const category = state[id];
 
+        const updatedCategory = {...category, name};
         const updates = {};
-        updates[`categories/${id}`] = { name };
+        updates[`categories/${id}`] = updatedCategory;
 
         await dbRef.update(updates);
 
         commit(
           "setItem",
-          { resource: "categories", id, item: { ...category, name } },
+          { resource: "categories", id, item: updatedCategory },
           { root: true }
         );
 
