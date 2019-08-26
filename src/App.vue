@@ -1,8 +1,10 @@
 <template>
   <v-app>
     <v-content>
+      <v-toolbar v-show="showPage" height="80">
+        <HeaderLogo />
+      </v-toolbar>
       <v-container>
-        <SvgLoader v-show="!showPage"/>
         <router-view
           v-show="showPage"
           :key="$route.path"
@@ -10,18 +12,21 @@
         ></router-view>
       </v-container>
     </v-content>
+    <SvgLoader v-show="!showPage"/>
   </v-app>
 </template>
 
 <script>
 import { mapActions } from 'vuex';
 import SvgLoader from '@/components/SvgLoader';
+import HeaderLogo from '@/components/HeaderLogo';
 import { detectIsIOS } from "@/services";
 
 export default {
   name: "App",
   components: {
-    SvgLoader
+    SvgLoader,
+    HeaderLogo
   },
   data() {
     return {
