@@ -1,5 +1,7 @@
 # ar-loft-test
 
+[DEMO](https://ar-loft-test.herokuapp.com/)
+
 ## Project setup
 ```
 npm install
